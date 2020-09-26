@@ -1,22 +1,29 @@
 #!/usr/bin/python3
-import pyautogui, sys, time
-import random
-from datetime import datetime
-datetime.now()
+
 """
 When fail-safe mode is True, moving the mouse to the upper-left will raise
 a pyautogui.FailSafeException that can abort your program.
+
+Docs: https://pyautogui.readthedocs.io/en/latest/mouse.html
+
+For easy development, run python3 measurement.py in one terminal window
+while working on this file. Press enter with the measurement/py window focused to
+record that mouse x-y position measurement.
 """
-
-NUM_TRACKS = 10
-
-# if you set this to true, the program won't wait for your input...
-JUST_GO_MODE = False
-
+import pyautogui, sys, time
+import random
+from datetime import datetime
 import logging
 import threading
 import time
 import keyboard
+
+# if you set this to true, the program won't wait for your input...
+JUST_GO_MODE = False
+
+pyautogui.FAILSAFE = True
+
+NUM_TRACKS = 10
 
 def exit_safe_key_watcher():
     return
@@ -26,7 +33,6 @@ def exit_safe_key_watcher():
     except:
         return
 
-# Docs: https://pyautogui.readthedocs.io/en/latest/mouse.html
 def double_click_wait(wait=0.2):
     pyautogui.click()
     time.sleep(0.1)
@@ -201,41 +207,4 @@ def make_soundscapes(how_many=5, bpm=80):
 
 make_soundscapes(how_many=3, bpm=80)
 
-
-# pyautogui.moveTo(100, 100, duration = 0.2)
-
-
-
-
-# pyautogui.click()
-
-# import pyautogui 
-# pyautogui.moveTo(0, 50, duration = 1) 
-
-
-# import pyautogui 
-# pyautogui.click(100, 100) 
-
-# import time 
-
-# # a module which has functions related to time. 
-# # It can be installed using cmd command: 
-# # pip install time, in the same way as pyautogui. 
-# import pyautogui 
-# time.sleep(10) 
-
-# # makes program execution pause for 10 sec 
-# pyautogui.moveTo(1000, 1000, duration = 1) 
-
-# # moves mouse to 1000, 1000. 
-# pyautogui.dragRel(100, 0, duration = 1) 
-
-# # drags mouse 100, 0 relative to its previous position, 
-# # thus dragging it to 1100, 1000 
-# pyautogui.dragRel(0, 100, duration = 1) 
-# pyautogui.dragRel(-100, 0, duration = 1) 
-# pyautogui.dragRel(0, -100, duration = 1) 
-
-
-# import pyautogui 
-# pyautogui.hotkey("ctrlleft", "a")
+print("All done.")
