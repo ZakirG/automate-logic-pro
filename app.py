@@ -58,6 +58,9 @@ def wait_for_human_observer_to_press_enter(message):
     keyboard.wait("Enter")
     print("Gotcha. Proceeding...")
 
+def take_a_screenshot(screenshot_filename='my_screenshot.png'):
+    return pyautogui.screenshot(screenshot_filename)
+
 def click_wait(wait=0.1):
     pyautogui.click()
     time.sleep(wait)
@@ -136,16 +139,16 @@ def open_instrument_window():
 
 def pick_track(track_num):
     track_nums = [
-        (756,  186),
-        (756,  229),
-        (760,  284),
-        (758,  336),   
-        (759,  384),
-        (761,  437),
-        (761,  480),
-        (760,  532),
-        (759,  584),
-        (763,  634)
+        ( 785,  194),
+        ( 801,  242),   
+        ( 814,  288),   
+        ( 814,  333),   
+        ( 819,  384),   
+        ( 805,  432),   
+        ( 806,  474),   
+        ( 809,  515),   
+        ( 814,  554),   
+        ( 819,  612), 
     ]
     z = track_nums[track_num]
     move(z[0], z[1])
@@ -243,8 +246,10 @@ def drag_instrument_window_to_expected_position():
 def create_random_soundset(num_tracks):
     for i in range(num_tracks):
         pick_track(i)
+        take_a_screenshot()
+        time.sleep(0.3)
         open_instrument_window()
-        time.sleep(1)
+        time.sleep(2)
         drag_instrument_window_to_expected_position()
         
         minimize_omnisphere_top_pane()
@@ -254,10 +259,11 @@ def create_random_soundset(num_tracks):
         wait_for_human_observer_to_press_enter('I picked this preset... do you like it?')
         
         close_omnisphere()
+        
 
-def make_beats(how_many=5, bpm=80, num_tracks=10):
+def make_beats(how_many_beats=1, bpm=80, num_tracks=10):
     # set_project_tempo(bpm)
-    for i in range(how_many):
+    for i in range(how_many_beats):
         # save_as("soundscape-v" + str(i))
         create_random_soundset(num_tracks)
         # save()
@@ -283,7 +289,7 @@ def open_beat_template():
 
 open_beat_template()
 
-make_beats(how_many=2, bpm=80, num_tracks=10)
+make_beats(how_many_beats=1, bpm=80, num_tracks=3)
 
 print("All done.")
 
