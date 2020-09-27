@@ -19,11 +19,18 @@ import time
 import keyboard
 
 # if you set this to true, the program won't wait for your input...
-JUST_GO_MODE = False
+JUST_GO_MODE = True
 
 pyautogui.FAILSAFE = True
 
-NUM_TRACKS = 10
+def q():
+    sys.exit()
+
+def log(x):
+    print(x)
+
+def press_enter():
+    pyautogui.press('enter')
 
 def exit_safe_key_watcher():
     return
@@ -39,13 +46,15 @@ def double_click_wait(wait=0.2):
     pyautogui.click()
     time.sleep(wait)
 
-def wait_for_human_observer_to_press_enter():
+def wait_for_human_observer_to_press_enter(message):
     """
     in just go mode, we don't wait at all.... be careful
     """
     if JUST_GO_MODE:
         return
-    print("Waiting for you to press enter...")
+    print(message)
+    print("Press enter if you want to continue...")
+    
     keyboard.wait("Enter")
     print("Gotcha. Proceeding...")
 
@@ -56,8 +65,14 @@ def click_wait(wait=0.1):
 def type_a_string(string_to_type):
     pyautogui.write(string_to_type)
 
-def move(x, y):
-    pyautogui.moveTo( x ,  y, duration = 0.1)
+def move(x, y=None):
+    if y is None:
+        pyautogui.moveTo( x[0] ,  x[1], duration = 0.1)
+    else:
+        pyautogui.moveTo( x ,  y, duration = 0.1)
+    
+def moveRel(x, y):
+    pyautogui.moveRel(x, y, duration=0.1)
 
 def open_logic_shortcut():
     """
@@ -66,9 +81,10 @@ def open_logic_shortcut():
     # Open logic shortcut
     move(688, 112)
     double_click_wait(0.1)
-    # Click on "File". this fails
-    move( 161,   16)
-    click_wait()
+    # # Click on "File". this fails
+    # move( 161,   16)
+    # click_wait()
+    pyautogui.hotkey("ctrl", "n")
 
 def cycle_omnisphere_instrument():
     # Omnisphere random instrument
@@ -85,17 +101,38 @@ def cycle_omnisphere_instrument():
 
 def minimize_omnisphere_top_pane():
     # move(1398, 61)
-    move(1401, 60)
+    # move(1401, 60)
+    move(1379,   41)
     click_wait()
 
-def pick_random_omnisphere_preset():
-    sound_num = random.choice(range(1, 10))
-    for n in range(sound_num):
-        cycle_omnisphere_instrument()
+def pick_random_omnisphere_preset(track_num):
+    # sound_num = random.choice(range(1, 10))
+    good_omnisphere_sounds = [
+        { 'name': 'psychopathic whistle', 'roles': ['lead'] },
+        { 'name': 'cresting waves', 'roles': ['pad'] },
+        { 'name': 'early warmies', 'roles': ['pad'] },
+        { 'name': 'JX03', 'roles': ['plink'] },
+        { 'name': 'analog chimes', 'roles': ['lead'], 'recommended_range': 'mid'},
+        { 'name': 'emptiness', 'roles': ['lead', 'flute'], 'recommended_range': 'mid'},
+        { 'name': 'fast chiff heirborne flute', 'roles': ['lead', 'flute']},
+    ]
+    sound_name = random.choice(good_omnisphere_sounds)['name']
+    log('Using sound {} for track {}'.format(sound_name, track_num))
+    move(  74,  153) 
+    click_wait(0.1)
+    click_wait(0.1)
+    type_a_string(sound_name)
+    press_enter()
+    move( 116,  535)
+    click_wait(0.1)
+    click_wait(0.1)
+    # Wait for the patch to load
+    time.sleep(0.3)
+    
 
 def open_instrument_window():
      move( 430,  472)
-     click_wait()
+     click_wait(1)
 
 def pick_track(track_num):
     track_nums = [
@@ -126,22 +163,8 @@ def scroll_to_top_of_instrument_pane_in_omnisphere():
     # pyautogui.scroll(-50000)
 
 def close_omnisphere():
-    move(33, 62)
+    move(  13,   40)
     click_wait()
-
-def create_random_soundset():
-    for i in range(NUM_TRACKS):
-        pick_track(i)
-        open_instrument_window()
-        time.sleep(2)
-        minimize_omnisphere_top_pane()
-        # scroll_to_top_of_instrument_pane_in_omnisphere()
-        pick_random_omnisphere_preset()
-        close_omnisphere()
-        wait_for_human_observer_to_press_enter()
-
-        # Giving you a chance to do something
-        # time.sleep(1)
 
 def current_timestamp_as_string():
     return str(datetime.now()).replace(':', '-').replace(' ', '-').split('.')[0]
@@ -184,7 +207,8 @@ def save_as(logic_project_filename):
     move(1180,  821)
     click_wait()
     wait_for_human_observer_to_press_enter()
-
+    pyautogui.press('enter')
+    
 # pyautogui.moveTo( 161 ,   15, duration = 0.2) 
 def set_project_tempo(bpm):
     move(666, 65)
@@ -196,15 +220,72 @@ def set_project_tempo(bpm):
     type_a_string(str(bpm))
     pyautogui.press('enter')
 
-def make_soundscapes(how_many=5, bpm=80):
-    set_project_tempo(bpm)
-    for i in range(how_many):
-        save_as("soundscape-v" + str(i))
-        create_random_soundset()
-        save()
-        export_to_mp3("soundscape-v" + str(i) + "--" - current_timestamp_as_string())
-        return
+def click_top_of_logic_window():
+    move(716, 36)
+    click_wait()
+    time.sleep(2)
+    click_wait()
 
-make_soundscapes(how_many=3, bpm=80)
+def drag_instrument_window_to_expected_position():
+    import os
+    # os.chdir(os.path.dirname(__file__))
+    # print(os.getcwd())
+    # im2 = pyautogui.screenshot('my_screenshot.png')
+    # location = pyautogui.locateOnScreen('imgs/omnisphere-logo.png')
+    # print(location)     
+    # im2 = pyautogui.screenshot('my_screenshot.png')
+    location = pyautogui.locateOnScreen('imgs/instrument-topbar.png')
+    print(pyautogui.center(location))
+    move(pyautogui.center(location))
+    moveRel(0, -89)
+    pyautogui.dragTo(117, 26, button='left')
+
+def create_random_soundset(num_tracks):
+    for i in range(num_tracks):
+        pick_track(i)
+        open_instrument_window()
+        time.sleep(1)
+        drag_instrument_window_to_expected_position()
+        
+        minimize_omnisphere_top_pane()
+        # scroll_to_top_of_instrument_pane_in_omnisphere()
+        pick_random_omnisphere_preset(i)
+        
+        wait_for_human_observer_to_press_enter('I picked this preset... do you like it?')
+        
+        close_omnisphere()
+
+def make_beats(how_many=5, bpm=80, num_tracks=10):
+    # set_project_tempo(bpm)
+    for i in range(how_many):
+        # save_as("soundscape-v" + str(i))
+        create_random_soundset(num_tracks)
+        # save()
+        # export_to_mp3("soundscape-v" + str(i) + "--" - current_timestamp_as_string())
+
+def dragTo(x, y):
+    pyautogui.mouseDown()
+    time.sleep(0.4)
+    # pyautogui.dragTo(405, 657, button='left')
+    move(x, y)
+    pyautogui.mouseUp()
+
+def open_beat_template():
+    move( 346,  899)
+    time.sleep(0.3)
+    move( 333,  836)
+    dragTo(405, 657)
+    click_wait(0)
+    time.sleep(0.4)
+    pyautogui.mouseUp()
+    time.sleep(0.5)
+    click_top_of_logic_window()
+
+open_beat_template()
+
+make_beats(how_many=2, bpm=80, num_tracks=10)
 
 print("All done.")
+
+
+q()
